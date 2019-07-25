@@ -3,14 +3,28 @@ const Schema = mongoose.Schema
 
 const userSchema = new Schema(
   {
-    username: String,
+    email: { type: String, required: true },
     password: String,
+    picture: String,
+    isCandidate: { type: Boolean, default: false },
+    isRecruiter: { type: Boolean, default: false },
+    personalInfo: {
+      firstName: String,
+      lastName: String,
+      nationality: String,
+      phone: String,
+      description: String,
+    },
+    skills: [
+      {
+        name: String,
+        level: { type: Number, min: 0, max: 3, default: 0 },
+      },
+    ],
+    projects: [{ name: String, pictures: [String], description: String }],
   },
   {
-    timestamps: {
-      createdAt: 'created_at',
-      updatedAt: 'updated_at',
-    },
+    timestamps: true,
   }
 )
 
