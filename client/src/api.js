@@ -73,40 +73,9 @@ export default {
       .catch(errHandler)
   },
 
-  // --- Examples ---
-
-  // This is an example on how to use this method in a different file
-  // api.getCountries().then(countries => { /* ... */ })
-  getCountries() {
+  saveAllCompanyUsers(companyUsers) {
     return service
-      .get('/countries')
-      .then(res => res.data)
-      .catch(errHandler)
-  },
-
-  addCountry(body) {
-    return service
-      .post('/countries', body)
-      .then(res => res.data)
-      .catch(errHandler)
-  },
-
-  getSecret() {
-    return service
-      .get('/secret')
-      .then(res => res.data)
-      .catch(errHandler)
-  },
-
-  addPicture(file) {
-    const formData = new FormData()
-    formData.append('picture', file)
-    return service
-      .post('/endpoint/to/add/a/picture', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      .put('/save-all-company-users', { companyUsers })
       .then(res => res.data)
       .catch(errHandler)
   },

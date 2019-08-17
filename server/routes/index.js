@@ -21,4 +21,14 @@ router.get('/my-applications-dashboard', isLoggedIn, async (req, res, next) => {
   res.json({ companies, jobOffers, companyUsers })
 })
 
+router.put('/save-all-company-users', isLoggedIn, async (req, res, next) => {
+  await CompanyUser.deleteMany({ _user: req.user._id })
+  const { companyUsers } = req.body
+  for (let i = 0; i < companyUsers.length; i++) {
+    companyUsers[i]._user = req.user._id
+  }
+  let newCompanyUsers = await CompanyUser.create(companyUsers)
+  res.json({ companyUsers: newCompanyUsers })
+})
+
 module.exports = router

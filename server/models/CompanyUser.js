@@ -5,7 +5,7 @@ const companyUserSchema = new mongoose.Schema({
   _user: { type: mongoose.Schema.ObjectId, ref: 'User' },
   companyGrade: { type: String },
   applicationStage: { type: String },
-  comments: { type: String },
+  comment: { type: String },
 })
 
 module.exports = mongoose.model('CompanyUser', companyUserSchema)

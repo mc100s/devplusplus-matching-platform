@@ -59,3 +59,26 @@ main {
     padding: 10px;
   }
 }
+
+.btn {
+  border: none;
+  height: 1.9em;
+  padding: 0 10px;
+  cursor: pointer;
+}
+.btn.btn--primary {
+  background-color: $primary;
+  color: white;
+}
+
+.cell-with-arrows {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell-with-arrows__arrows {
+  margin-left: 10px;
+}
+.cell-with-arrows__arrow {
+  cursor: pointer;
+}

@@ -7,6 +7,7 @@ export default function Home() {
     jobOffers: [],
     companyUsers: [],
     search: '',
+    nbOfCompaniesToDisplay: 20,
   })
   useEffect(() => {
     api.getMyApplicationsDashboard().then(data => {
@@ -17,19 +18,106 @@ export default function Home() {
     })
   }, [])
 
-  function handleSearch(e) {
+  function handleInputChange(e) {
     setState({
       ...state,
-      search: e.target.value,
+      [e.target.name]: e.target.value,
     })
   }
 
-  let tableRows = state.companies.map(tableRow => ({
-    ...tableRow,
-    jobOffers: state.jobOffers.filter(
-      jobOffer => jobOffer._company === tableRow._id
-    ),
-  }))
+  function handleCompanyUserChange(e, _company) {
+    console.log('TCL: handleCompanyUserChange -> _company', _company)
+    let newCompanyUsers = [...state.companyUsers]
+    let indexToChange = newCompanyUsers.findIndex(
+      companyUser => companyUser._company === _company
+    )
+    if (indexToChange === -1) {
+      newCompanyUsers.push({
+        _company: _company,
+        companyGrade: '',
+        applicationStage: '',
+        comment: '',
+      })
+      indexToChange = newCompanyUsers.length - 1
+    }
+    newCompanyUsers[indexToChange][e.target.name] = e.target.value
+    setState({
+      ...state,
+      companyUsers: newCompanyUsers,
+    })
+  }
+
+  function saveNotes() {
+    api.saveAllCompanyUsers(state.companyUsers).then(data => {
+      console.log('SAVED', data)
+    })
+  }
+
+  function sortTableRows(stateField, subField, isAsc) {
+    let ascFactor = isAsc ? 1 : -1
+    setState({
+      ...state,
+      [stateField]: [...state[stateField]].sort((a, b) => {
+        if (!a[subField]) return -ascFactor
+        if (!b[subField]) return ascFactor
+        let aTransformed = a[subField]
+        let bTransformed = b[subField]
+        if (
+          typeof aTransformed === 'string' &&
+          typeof bTransformed === 'string'
+        ) {
+          aTransformed = aTransformed.trim().toUpperCase()
+          bTransformed = bTransformed.trim().toUpperCase()
+        }
+        if (aTransformed === bTransformed) return 0
+        return aTransformed > bTransformed ? ascFactor : -ascFactor
+      }),
+    })
+  }
+
+  function getThWithArrows(label, stateField, subField) {
+    return (
+      <th>
+        <div className="cell-with-arrows">
+          <div>{label}</div>
+          <div className="cell-with-arrows__arrows">
+            <div
+              className="cell-with-arrows__arrow"
+              onClick={() => sortTableRows(stateField, subField, true)}
+            >
+              ▲
+            </div>
+            <div
+              className="cell-with-arrows__arrow"
+              onClick={() => sortTableRows(stateField, subField, false)}
+            >
+              ▼
+            </div>
+          </div>
+        </div>
+      </th>
+    )
+  }
+
+  let tableRows = state.companies.map(tableRow => {
+    let foundCompanyUser = state.companyUsers.find(
+      companyUser => companyUser._company === tableRow._id
+    )
+    if (!foundCompanyUser) {
+      foundCompanyUser = {
+        companyGrade: '',
+        applicationStage: '',
+        comment: '',
+      }
+    }
+    return {
+      ...tableRow,
+      jobOffers: state.jobOffers.filter(
+        jobOffer => jobOffer._company === tableRow._id
+      ),
+      ...foundCompanyUser,
+    }
+  })
 
   return (
     <div className="Home">
@@ -37,22 +125,33 @@ export default function Home() {
       <input
         type="text"
         placeholder="Search"
+        name="search"
         value={state.search}
-        onChange={handleSearch}
+        onChange={handleInputChange}
       />{' '}
+      <input
+        type="number"
+        placeholder="Search"
+        name="nbOfCompaniesToDisplay"
+        value={state.nbOfCompaniesToDisplay}
+        onChange={handleInputChange}
+      />{' '}
+      <button className="btn btn--primary" onClick={saveNotes}>
+        Save Notes
+      </button>
       <br />
       <br />
       <table className="table-dashboard">
         <thead>
           <tr>
-            <th>Company</th>
+            {getThWithArrows('Company', 'companies', 'name')}
             <th>Company Grade</th>
             <th>Application Stage</th>
-            <th>Comments</th>
+            <th>Comment</th>
             <th>Links</th>
-            <th>Fonded Year</th>
-            <th>Employees</th>
-            <th>Average Age</th>
+            {getThWithArrows('Fonded Year', 'companies', 'foundedYear')}
+            {getThWithArrows('Employees', 'companies', 'employees')}
+            {getThWithArrows('Average age', 'companies', 'avgAge')}
             <th>Adresses</th>
             {/* <th>Cities</th> */}
             <th>Job Offers</th>
@@ -60,18 +159,39 @@ export default function Home() {
         </thead>
         <tbody>
           {tableRows
-            //.filter((tableRow, i) => i < 10)
             .filter(tableRow =>
               JSON.stringify(tableRow)
                 .toUpperCase()
                 .includes(state.search.toUpperCase())
             )
+            .filter((tableRow, i) => i < state.nbOfCompaniesToDisplay)
             .map(tableRow => (
               <tr key={tableRow._id}>
                 <td>{tableRow.name}</td>
-                <td>...</td>
-                <td>...</td>
-                <td>...</td>
+                <td>
+                  <input
+                    type="number"
+                    style={{ width: 50 }}
+                    name="companyGrade"
+                    value={tableRow.companyGrade}
+                    onChange={e => handleCompanyUserChange(e, tableRow._id)}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    name="applicationStage"
+                    value={tableRow.applicationStage}
+                    onChange={e => handleCompanyUserChange(e, tableRow._id)}
+                  />
+                </td>
+                <td>
+                  <textarea
+                    name="comment"
+                    value={tableRow.comment}
+                    onChange={e => handleCompanyUserChange(e, tableRow._id)}
+                  />
+                </td>
                 <td>
                   {tableRow.links.map((link, i) => (
                     <a
