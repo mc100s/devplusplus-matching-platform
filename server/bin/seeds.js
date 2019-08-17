@@ -68,7 +68,7 @@ Promise.all([User.deleteMany(), Favorite.deleteMany()])
     return Promise.all([User.create(users), Favorite.create(favorites)])
   })
   .then(() => {
-    console.log(`${users.length} favorites created`)
+    console.log(`${users.length} users created`)
     console.log(`${favorites.length} favorites created`)
   })
   .then(() => {

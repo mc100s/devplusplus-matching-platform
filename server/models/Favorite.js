@@ -7,6 +7,4 @@ const favoriteSchema = new mongoose.Schema({
 
 favoriteSchema.index({ _favorite: 1, _favoriteBy: 1 }, { unique: true })
 
-const Favorite = mongoose.model('Favorite', favoriteSchema)
-
-module.exports = Favorite
+module.exports = mongoose.model('Favorite', favoriteSchema)
