@@ -66,6 +66,15 @@ export default {
     return service.get('/logout')
   },
 
+  getMyApplicationsDashboard() {
+    return service
+      .get('/my-applications-dashboard')
+      .then(res => res.data)
+      .catch(errHandler)
+  },
+
+  // --- Examples ---
+
   // This is an example on how to use this method in a different file
   // api.getCountries().then(countries => { /* ... */ })
   getCountries() {

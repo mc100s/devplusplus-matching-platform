@@ -20,15 +20,23 @@ require('../configs/database')
     let companies = await Company.create(
       jsonCompanies.map(jsonCompany => ({
         ...jsonCompany,
-        links: [{ website: 'wttj', value: jsonCompany.link }],
-        avgAge: parseInt(jsonCompany.avgAge),
-        techTools: jsonCompany.techTools.sort(),
+        links: [
+          {
+            website: 'wttj',
+            value: 'https://www.welcometothejungle.co' + jsonCompany.link,
+          },
+        ],
+        avgAge: parseInt(jsonCompany.avgAge) || undefined,
+        techTools: jsonCompany.techTools
+          ? jsonCompany.techTools.sort()
+          : undefined,
       }))
     )
     console.log(`${companies.length} companies created`)
     let jobOffers = await JobOffer.create(
       jsonJobOffers.map(jsonJobOffer => ({
         ...jsonJobOffer,
+        link: 'https://www.welcometothejungle.co' + jsonJobOffer.link,
         _company: companies.find(
           company => company.name === jsonJobOffer.company
         )._id,
