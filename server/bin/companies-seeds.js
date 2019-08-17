@@ -8,11 +8,14 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') })
 
 const mongoose = require('mongoose')
 const Company = require('../models/Company')
+const JobOffer = require('../models/JobOffer')
 const jsonCompanies = require('./data/companies')
+const jsonJobOffers = require('./data/jobOffers')
 
 require('../configs/database')
 ;(async () => {
   try {
+    await JobOffer.deleteMany()
     await Company.deleteMany()
     let companies = await Company.create(
       jsonCompanies.map(jsonCompany => ({
@@ -23,6 +26,15 @@ require('../configs/database')
       }))
     )
     console.log(`${companies.length} companies created`)
+    let jobOffers = await JobOffer.create(
+      jsonJobOffers.map(jsonJobOffer => ({
+        ...jsonJobOffer,
+        _company: companies.find(
+          company => company.name === jsonJobOffer.company
+        )._id,
+      }))
+    )
+    console.log(`${jobOffers.length} jobOffers created`)
   } finally {
     mongoose.disconnect()
   }
